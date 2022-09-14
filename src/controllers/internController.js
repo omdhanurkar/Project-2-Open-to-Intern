@@ -3,7 +3,7 @@ const collegeModel = require("../models/collegeModel");
 
 
 const isValid = function (value) {
-    if (typeof value == "String" && value.trim().length === 0) return false;
+    if (typeof value == "string" && value.trim().length === 0) return false;
     if (typeof value === "undefined" || value === null) return false;
     return true;
 };
