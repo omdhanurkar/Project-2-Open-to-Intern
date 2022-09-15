@@ -30,9 +30,11 @@ const createCollege = async function (req, res) {
         if (!data.logoLink) {
             return res.status(400).send({ status: false, message: "Please enter logo link" });
         }
+
         if (!/(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-/]))?/.test(data.logoLink)) {
             return res.status(400).send({ status: false, message: "Please enter valid url" });
         }
+
         const checkusedName = await collegeModel.findOne({ name: data.name });
         if (checkusedName) {
             return res.status(400).send({ status: false, message: "This college Name already exists" });
@@ -57,10 +59,12 @@ const getCollege = async function (req, res) {
         let college = await collegeModel.findOne({ name: collegeName });             //college details
         if (!college) return res.status(404).send({ status: false, msg: "Could not find Colleges details" });
 
-        let internsData= await internModel.find({ collegeId: college._id }).select({ name: 1, email: 1, mobile: 1, _id: 1 }); // student(intern) details
+        let internsData = await internModel.find({ collegeId: college._id }).select({ name: 1, email: 1, mobile: 1, _id: 1 }); // student(intern) details
+        if (internsData.length === 0) {
+            return res.status(404).send({ status: false, msg: "Could not find Interns details for this college" });
+        }
 
-
-        let allInterns = {                    // both college and student details
+        let allInterns = {                                          // both college and student details
             name: college.name,
             fullName: college.fullName,
             logoLink: college.logoLink,
