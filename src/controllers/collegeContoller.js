@@ -35,13 +35,15 @@ const createCollege = async function (req, res) {
             return res.status(400).send({ status: false, message: "Please enter valid url" });
         }
 
-        const checkusedName = await collegeModel.findOne({ name: data.name });
+        const checkusedName = await collegeModel.findOne({ name: data.name, fullName: data.fullName });
         if (checkusedName) {
-            return res.status(400).send({ status: false, message: "This college Name already exists" });
+            return res.status(400).send({ status: false, message: "This college already exists" });
         }
 
         let collegeData = await collegeModel.create(data);
-        return res.status(201).send({ status: true, message: "College data is successfully created", data: collegeData });
+        let newData = { name: collegeData.name, fullName: collegeData.fullName, logoLink: collegeData.logoLink, isDeleted: collegeData.isDeleted }
+
+        return res.status(201).send({ data: newData });
 
     } catch (err) {
         return res.status(500).send({ status: false, message: err.message });
@@ -57,7 +59,7 @@ const getCollege = async function (req, res) {
             return res.status(400).send({ status: false, msg: "collegeName must be entered" });
         }
         let college = await collegeModel.findOne({ name: collegeName });             //college details
-        if (!college) return res.status(404).send({ status: false, msg: "Could not find Colleges details" });
+        if (!college) return res.status(404).send({ status: false, msg: "Could not find College details" });
 
         let internsData = await internModel.find({ collegeId: college._id }).select({ name: 1, email: 1, mobile: 1, _id: 1 }); // student(intern) details
         if (internsData.length === 0) {

@@ -8,7 +8,7 @@ const collegeModel = require("../models/collegeModel");
 const createIntern = async function (req, res) {
     try {
         let data = req.body;
-        const { name, email, mobile, collegeId } = data
+        const { name, email, mobile, collegename } = data
 
         if (Object.keys(data).length === 0) {
             return res.status(400).send({ status: false, message: "Please enter data to create intern" });
@@ -38,15 +38,17 @@ const createIntern = async function (req, res) {
         const usedMobile = await internModel.findOne({ mobile });
         if (usedMobile) return res.status(400).send({ status: false, message: "Mobile is already used" });
 
+        const getCollege = await collegeModel.findOne({ name: collegename})
+        if (!getCollege) return res.status(404).send({ status: false, message: "college not found." })
 
-        const college = await collegeModel.findById({ _id: collegeId })
-        if (!college) return res.status(400).send({ status: false, message: "college not found" });
-
-        const allInternData = { name, email, mobile, collegeId, college }
+        const collegeId = getCollege._id
+        const allInternData = { name, email, mobile, collegename, collegeId }
 
         const intern = await internModel.create(allInternData)
-        return res.status(201).send({ status: false, message: "Intern has been created", data: intern })
-
+        let internsData = {
+            name: intern.name, email: intern.email, mobile: intern.mobile, collegeId: intern.collegeId
+        }
+        return res.status(201).send({ data: internsData })
     } catch (err) {
         return res.status(500).send({ status: false, message: err.message });
     }
