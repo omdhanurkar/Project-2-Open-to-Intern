@@ -39,11 +39,14 @@ const createCollege = async function (req, res) {
         if (checkusedName) {
             return res.status(400).send({ status: false, message: "This college already exists" });
         }
+        if(data.isDeleted===true){
+            return res.status(400).send({status:false,message:"You can't delete while creating"})
+        }
 
         let collegeData = await collegeModel.create(data);
         let newData = { name: collegeData.name, fullName: collegeData.fullName, logoLink: collegeData.logoLink, isDeleted: collegeData.isDeleted }
 
-        return res.status(201).send({ data: newData });
+        return res.status(201).send({status:true,message: "college successfilly created" ,data: newData});
 
     } catch (err) {
         return res.status(500).send({ status: false, message: err.message });
@@ -55,8 +58,9 @@ const createCollege = async function (req, res) {
 const getCollege = async function (req, res) {
     try {
         let collegeName = req.query.collegeName;
-        if (collegeName.length == 0) {
-            return res.status(400).send({ status: false, msg: "collegeName must be entered" });
+
+        if(!collegeName || collegeName.length === 0) {
+            return res.status(400).send({ status: false, message: "Please enter college name" });
         }
         let college = await collegeModel.findOne({ name: collegeName });             //college details
         if (!college) return res.status(404).send({ status: false, msg: "Could not find College details" });
@@ -72,7 +76,7 @@ const getCollege = async function (req, res) {
             logoLink: college.logoLink,
             interns: internsData
         };
-        return res.status(200).send({ data: allInterns });
+        return res.status(200).send({status:true, data: allInterns});
     } catch (error) {
         return res.status(500).send({ status: false, msg: error.message });
     }
